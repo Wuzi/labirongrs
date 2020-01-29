@@ -1,3 +1,8 @@
+pub use self::game::Game;
+mod game;
+
 fn main() {
-    println!("Hello, world!");
+  let mut game = Game { grid: vec![] };
+  game.load_map("map.txt".to_string());
+  game.run();
 }
