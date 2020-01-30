@@ -19,7 +19,7 @@ impl Game {
       write!(
         self.stdout,
         "{}{}{}",
-        termion::cursor::Goto(1, i as u16 + 2),
+        termion::cursor::Goto(1, i as u16 + 1),
         termion::clear::CurrentLine,
         row,
       )
@@ -30,7 +30,7 @@ impl Game {
     write!(
       self.stdout,
       "{}{}",
-      termion::cursor::Goto(self.player.x, self.player.y),
+      termion::cursor::Goto(self.player.x + 1, self.player.y + 1),
       "P",
     )
     .unwrap();
@@ -76,13 +76,21 @@ impl Game {
     for c in stdin.keys() {
       self.clear_screen();
 
+      let mut x: u16 = self.player.x;
+      let mut y: u16 = self.player.y;
+
       match c.unwrap() {
         Key::Esc => break,
-        Key::Left => self.player.x -= 1,
-        Key::Right => self.player.x += 1,
-        Key::Up => self.player.y -= 1,
-        Key::Down => self.player.y += 1,
+        Key::Left => x = self.player.x - 1,
+        Key::Right => x = self.player.x + 1,
+        Key::Up => y = self.player.y - 1,
+        Key::Down => y = self.player.y + 1,
         _ => (),
+      }
+
+      if self.grid[y as usize].as_bytes()[x as usize] as char != '#' {
+        self.player.x = x;
+        self.player.y = y;
       }
 
       self.print_screen();
