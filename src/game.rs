@@ -75,25 +75,17 @@ impl Game {
     let stdin = stdin();
     for c in stdin.keys() {
       self.clear_screen();
-      self.print_screen();
-
-      write!(
-        self.stdout,
-        "{}{}",
-        termion::cursor::Goto(1, 1),
-        termion::clear::CurrentLine,
-      )
-      .unwrap();
 
       match c.unwrap() {
         Key::Esc => break,
-        Key::Left => println!("<left>"),
-        Key::Right => println!("<right>"),
-        Key::Up => println!("<up>"),
-        Key::Down => println!("<down>"),
+        Key::Left => self.player.x -= 1,
+        Key::Right => self.player.x += 1,
+        Key::Up => self.player.y -= 1,
+        Key::Down => self.player.y += 1,
         _ => (),
       }
 
+      self.print_screen();
       self.stdout.flush().unwrap();
     }
 
