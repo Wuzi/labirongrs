@@ -1,4 +1,5 @@
 extern crate termion;
+use crate::player;
 
 use std::fs::File;
 use std::io::{stdin, BufRead, BufReader, Write};
@@ -8,10 +9,12 @@ use termion::input::TermRead;
 pub struct Game {
   pub grid: Vec<String>,
   pub stdout: termion::raw::RawTerminal<std::io::Stdout>,
+  pub player: player::Player,
 }
 
 impl Game {
   pub fn print_screen(&mut self) {
+    // draw grid
     for (i, row) in self.grid.iter().enumerate() {
       write!(
         self.stdout,
@@ -22,6 +25,16 @@ impl Game {
       )
       .unwrap();
     }
+
+    // draw player
+    write!(
+      self.stdout,
+      "{}{}",
+      termion::cursor::Goto(self.player.x, self.player.y),
+      "P",
+    )
+    .unwrap();
+
     self.stdout.flush().unwrap();
   }
 
