@@ -1,21 +1,28 @@
 extern crate termion;
 
 use std::fs::File;
-use std::io::{BufRead, BufReader, Write};
+use std::io::{stdin, BufRead, BufReader, Write};
 use termion::event::Key;
 use termion::input::TermRead;
 
 pub struct Game {
   pub grid: Vec<String>,
   pub stdout: termion::raw::RawTerminal<std::io::Stdout>,
-  pub stdin: std::io::Stdin,
 }
 
 impl Game {
-  pub fn print_screen(&self) {
-    for row in &self.grid {
-      println!("{}", row);
+  pub fn print_screen(&mut self) {
+    for (i, row) in self.grid.iter().enumerate() {
+      write!(
+        self.stdout,
+        "{}{}{}",
+        termion::cursor::Goto(1, i as u16 + 2),
+        termion::clear::CurrentLine,
+        row,
+      )
+      .unwrap();
     }
+    self.stdout.flush().unwrap();
   }
 
   fn clear_screen(&mut self) {
@@ -24,7 +31,7 @@ impl Game {
       "{}{}{}",
       termion::clear::All,
       termion::cursor::Goto(1, 1),
-      termion::cursor::Hide
+      termion::cursor::Hide,
     )
     .unwrap();
     self.stdout.flush().unwrap();
@@ -43,20 +50,25 @@ impl Game {
     }
   }
 
-  pub fn run(mut self) {
+  pub fn run(&mut self) {
     if self.grid.len() < 1 {
       println!("You need to load a map first!");
       return;
     }
 
     self.clear_screen();
+    self.print_screen();
 
-    for c in self.stdin.keys() {
+    let stdin = stdin();
+    for c in stdin.keys() {
+      self.clear_screen();
+      self.print_screen();
+
       write!(
         self.stdout,
         "{}{}",
         termion::cursor::Goto(1, 1),
-        termion::clear::CurrentLine
+        termion::clear::CurrentLine,
       )
       .unwrap();
 
