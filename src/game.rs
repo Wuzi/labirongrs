@@ -1,8 +1,14 @@
+extern crate termion;
+
 use std::fs::File;
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
+use termion::event::Key;
+use termion::input::TermRead;
 
 pub struct Game {
   pub grid: Vec<String>,
+  pub stdout: termion::raw::RawTerminal<std::io::Stdout>,
+  pub stdin: std::io::Stdin,
 }
 
 impl Game {
@@ -12,8 +18,16 @@ impl Game {
     }
   }
 
-  fn clear_screen(&self) {
-    print!("\x1B[2J");
+  fn clear_screen(&mut self) {
+    write!(
+      self.stdout,
+      "{}{}{}",
+      termion::clear::All,
+      termion::cursor::Goto(1, 1),
+      termion::cursor::Hide
+    )
+    .unwrap();
+    self.stdout.flush().unwrap();
   }
 
   pub fn load_map(&mut self, filename: String) {
@@ -29,12 +43,35 @@ impl Game {
     }
   }
 
-  pub fn run(self) {
+  pub fn run(mut self) {
     if self.grid.len() < 1 {
       println!("You need to load a map first!");
       return;
     }
+
     self.clear_screen();
-    self.print_screen();
+
+    for c in self.stdin.keys() {
+      write!(
+        self.stdout,
+        "{}{}",
+        termion::cursor::Goto(1, 1),
+        termion::clear::CurrentLine
+      )
+      .unwrap();
+
+      match c.unwrap() {
+        Key::Esc => break,
+        Key::Left => println!("<left>"),
+        Key::Right => println!("<right>"),
+        Key::Up => println!("<up>"),
+        Key::Down => println!("<down>"),
+        _ => (),
+      }
+
+      self.stdout.flush().unwrap();
+    }
+
+    write!(self.stdout, "{}", termion::cursor::Show).unwrap();
   }
 }
