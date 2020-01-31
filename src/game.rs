@@ -94,7 +94,6 @@ impl Game {
             }
 
             self.print_screen();
-            self.stdout.flush().unwrap();
         }
 
         write!(self.stdout, "{}", termion::cursor::Show).unwrap();
